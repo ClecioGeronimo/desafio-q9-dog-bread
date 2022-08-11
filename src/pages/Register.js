@@ -7,19 +7,33 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import api from '../services/Api';
 
 export default Register = ({navigation}) => {
   const [email, onChangeEmail] = React.useState('');
+
+  const authorization = async () => {
+    try {
+      const response = await api.post(
+        '/register',
+        {email: email},
+        {headers: {'Content-Type': 'application/json'}},
+      );
+      const token = response.data.user.token;
+      api.defaults.headers.common = {Authorization: token};
+    } catch (error) {
+      console.log(error);
+    }
+    navigation.navigate('Lista');
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.containerLogo}>
         <Image
           source={require('../../assets/dog3.png')}
-          resizeMode="stretch"
-          stale={styles.containerLogo}></Image>
+          resizeMode="contain"
+          style={styles.containerLogo}></Image>
       </View>
 
       <View style={styles.containerText}>
@@ -30,9 +44,7 @@ export default Register = ({navigation}) => {
           placeholder="Digite seu Email"
           keyboardType="email-address"
         />
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('Lista')}>
+        <TouchableOpacity style={styles.button} onPress={() => authorization()}>
           <Text style={styles.buttonText}>Registre-se</Text>
         </TouchableOpacity>
       </View>
